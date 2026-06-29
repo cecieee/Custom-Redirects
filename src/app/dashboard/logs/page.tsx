@@ -1,4 +1,3 @@
-import { format } from 'date-fns' // Note: may need date-fns, or just use native Intl
 import pool from '@/lib/db'
 
 export default async function AuditLogPage() {
