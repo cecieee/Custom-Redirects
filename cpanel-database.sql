@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS redirect_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(50) NOT NULL,
+    domain VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
+    destination VARCHAR(1024),
+    user_id VARCHAR(255),
+    user_email VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

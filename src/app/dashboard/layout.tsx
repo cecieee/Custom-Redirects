@@ -1,0 +1,98 @@
+import { createClient } from '@/lib/supabase-server'
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
+import { LogOut, LayoutDashboard, History, Users } from 'lucide-react'
+
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  // Optional: Fetch user profile to check role for showing 'Users' tab
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const isAdmin = profile?.role === 'admin'
+
+  return (
+    <div className="min-h-screen bg-[var(--color-blue-main)] flex flex-col">
+      <nav className="bg-[var(--color-blue-primary)] shadow-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center gap-8">
+              <div className="flex-shrink-0 flex items-center cursor-pointer group">
+                <Image src="/SB-logo30-.png" alt="Logo" width={200} height={70} className="object-contain group-hover:scale-105 transition-transform duration-300" />
+              </div>
+              
+              <div className="hidden sm:flex sm:space-x-2">
+                <Link
+                  href="/dashboard"
+                  className="group inline-flex items-center px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-all duration-300 active:scale-95"
+                >
+                  <LayoutDashboard className="w-4 h-4 mr-2 opacity-70 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6" />
+                  <span className="relative transition-all duration-300 group-hover:translate-x-0.5 group-hover:tracking-wide">
+                    Dashboard
+                    <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-white transition-all duration-300 group-hover:w-full"></span>
+                  </span>
+                </Link>
+                <Link
+                  href="/dashboard/logs"
+                  className="group inline-flex items-center px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-all duration-300 active:scale-95"
+                >
+                  <History className="w-4 h-4 mr-2 opacity-70 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6" />
+                  <span className="relative transition-all duration-300 group-hover:translate-x-0.5 group-hover:tracking-wide">
+                    Audit Logs
+                    <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-white transition-all duration-300 group-hover:w-full"></span>
+                  </span>
+                </Link>
+                {isAdmin && (
+                  <Link
+                    href="/dashboard/users"
+                    className="group inline-flex items-center px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-all duration-300 active:scale-95"
+                  >
+                    <Users className="w-4 h-4 mr-2 opacity-70 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6" />
+                    <span className="relative transition-all duration-300 group-hover:translate-x-0.5 group-hover:tracking-wide">
+                      Users
+                      <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-white transition-all duration-300 group-hover:w-full"></span>
+                    </span>
+                  </Link>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-white/80 hidden md:block">
+                {user.email}
+              </span>
+              <form action="/auth/signout" method="post">
+                <button
+                  type="submit"
+                  className="p-2.5 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200"
+                  title="Sign out"
+                  suppressHydrationWarning
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {children}
+      </main>
+    </div>
+  )
+}
