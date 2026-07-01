@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { RedirectRow } from './RedirectRow'
-import { Search, ChevronDown, Check } from 'lucide-react'
+import { Search, ChevronDown, Check, RefreshCw } from 'lucide-react'
 
 interface Redirect {
   domain: string
@@ -15,6 +16,14 @@ export function RedirectList({ redirects, domains, currentUserEmail }: { redirec
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedDomain, setSelectedDomain] = useState<string>('all')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
+  const handleRefresh = () => {
+    startTransition(() => {
+      router.refresh()
+    })
+  }
 
   const filteredRedirects = redirects.filter(redirect => {
     const matchesSearch = redirect.path.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -43,6 +52,14 @@ export function RedirectList({ redirects, domains, currentUserEmail }: { redirec
           <span className="text-sm text-slate-500 bg-white px-2.5 py-0.5 rounded-full border border-slate-200 shadow-sm">
             {filteredRedirects.length}
           </span>
+          <button 
+            onClick={handleRefresh}
+            disabled={isPending}
+            className="ml-2 p-1.5 text-slate-400 hover:text-[var(--color-blue-primary)] hover:bg-white rounded-lg transition-colors border border-transparent hover:border-slate-200 hover:shadow-sm disabled:opacity-50"
+            title="Refresh list"
+          >
+            <RefreshCw className={`w-4 h-4 ${isPending ? 'animate-spin text-[var(--color-blue-primary)]' : ''}`} />
+          </button>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -110,7 +127,20 @@ export function RedirectList({ redirects, domains, currentUserEmail }: { redirec
       </div>
       
       <div className="divide-y divide-slate-100 flex-1">
-        {filteredRedirects.length === 0 ? (
+        {isPending ? (
+          Array.from({ length: Math.max(3, Math.min(5, filteredRedirects.length || 5)) }).map((_, i) => (
+            <div key={i} className="flex items-center justify-between p-4 border-b border-[var(--color-blue-surface)] animate-pulse">
+              <div className="flex-1 min-w-0 pr-4">
+                <div className="h-5 bg-slate-200 rounded-md w-1/3 mb-2"></div>
+                <div className="h-4 bg-slate-100 rounded-md w-1/2"></div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-9 h-9 bg-slate-100 rounded-lg"></div>
+                <div className="w-9 h-9 bg-slate-100 rounded-lg"></div>
+              </div>
+            </div>
+          ))
+        ) : filteredRedirects.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
             No redirects match your search.
           </div>
