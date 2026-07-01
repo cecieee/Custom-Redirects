@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase-server'
+import { createClient, createServiceClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 
 export default async function UsersPage() {
@@ -31,6 +31,18 @@ export default async function UsersPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
+  // Fetch auth users to get emails
+  const supabaseAdmin = createServiceClient()
+  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.listUsers()
+
+  const enrichedProfiles = (profiles || []).map(p => {
+    const authUser = authData?.users?.find(u => u.id === p.id);
+    return {
+      ...p,
+      email: authUser?.email || p.id // Fallback to ID if email not found
+    };
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -48,16 +60,16 @@ export default async function UsersPage() {
             <table className="w-full text-sm text-left">
               <thead className="bg-slate-50/50 text-slate-500 font-medium border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4">User ID</th>
+                  <th className="px-6 py-4">User Email</th>
                   <th className="px-6 py-4">Role</th>
                   <th className="px-6 py-4">Joined</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {profiles?.map((p) => (
+                {enrichedProfiles.map((p) => (
                   <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-mono text-slate-700 max-w-[200px] truncate">
-                      {p.id}
+                    <td className="px-6 py-4 font-medium text-slate-700 max-w-[200px] truncate">
+                      {p.email}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

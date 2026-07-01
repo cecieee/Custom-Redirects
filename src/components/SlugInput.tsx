@@ -47,7 +47,7 @@ export function SlugInput({ value, domain, onChange }: SlugInputProps) {
           type="text"
           required
           value={value}
-          onChange={(e) => onChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+          onChange={(e) => onChange(e.target.value)}
           className="flex-1 px-4 py-3 focus:outline-none text-slate-900"
           placeholder="new-event"
         />
