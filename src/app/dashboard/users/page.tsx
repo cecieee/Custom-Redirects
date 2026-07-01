@@ -9,14 +9,10 @@ export default async function UsersPage() {
     redirect('/login')
   }
 
-  // Check admin role
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const adminEmails = ['alwinsaji4.cgnr@gmail.com', 'webmastercecieee@gmail.com']
+  const isAdmin = user.email ? adminEmails.includes(user.email) : false
 
-  if (profile?.role !== 'admin') {
+  if (!isAdmin) {
     return (
       <div className="p-8 text-center bg-white rounded-2xl shadow-sm border border-slate-200">
         <h2 className="text-xl font-bold text-slate-900 mb-2">Access Denied</h2>
@@ -73,9 +69,9 @@ export default async function UsersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        p.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-slate-100 text-slate-800'
+                        adminEmails.includes(p.email) ? 'bg-purple-100 text-purple-800' : 'bg-slate-100 text-slate-800'
                       }`}>
-                        {p.role || 'user'}
+                        {adminEmails.includes(p.email) ? 'admin' : 'user'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-slate-500 whitespace-nowrap">

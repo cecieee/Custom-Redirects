@@ -40,7 +40,7 @@ export default function LoginPage() {
           {/* Subtle background decoration */}
           <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
           <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-          
+
           <div className="relative z-10">
             <Image src="/SB-logo30-.png" alt="CECIEEE Logo" width={56} height={56} className="mx-auto mb-4 object-contain drop-shadow-md" />
             <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
