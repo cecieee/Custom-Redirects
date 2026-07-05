@@ -31,6 +31,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ s
     const userRole = profile?.role || 'pending'
     const isAdmin = userRole === 'webmaster' || userRole === 'admin'
 
+    if (userRole === 'pending') {
+      return NextResponse.json({ error: 'Forbidden: Your account is pending approval' }, { status: 403 })
+    }
+
     if (!isAdmin) {
       const [rows] = await pool.execute(
         'SELECT user_email FROM redirect_logs WHERE domain = ? AND slug = ? AND action = "CREATE" ORDER BY created_at DESC LIMIT 1',

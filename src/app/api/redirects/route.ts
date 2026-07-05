@@ -35,6 +35,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single()
+
+    const userRole = profile?.role || 'pending'
+    
+    if (userRole === 'pending') {
+      return NextResponse.json({ error: 'Forbidden: Your account is pending approval' }, { status: 403 })
+    }
+
     // Check slug availability
     const existing = await listRedirects()
     const isTaken = (existing as any).data?.some((r: any) => r.path === `/${slug}`)

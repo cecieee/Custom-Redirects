@@ -103,7 +103,18 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
           <div className="sticky top-8">
-            <CreateForm domains={allDomains} defaultDomain={DOMAIN} />
+            {userRole === 'pending' ? (
+              <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[var(--color-blue-surface)] p-6">
+                <h2 className="text-xl font-semibold text-slate-800 mb-4">Pending Approval</h2>
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <p className="text-amber-800 text-sm">
+                    Your account is currently pending approval. An administrator must assign you a role before you can create redirects.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <CreateForm domains={allDomains} defaultDomain={DOMAIN} />
+            )}
           </div>
         </div>
         <div className="lg:col-span-2">
