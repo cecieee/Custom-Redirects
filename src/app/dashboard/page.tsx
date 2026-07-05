@@ -118,7 +118,9 @@ export default async function DashboardPage() {
           </div>
         </div>
         <div className="lg:col-span-2">
-          <RedirectList redirects={redirects} domains={allDomains} currentUserEmail={user?.email} isAdmin={isAdmin} />
+          {userRole !== 'pending' && (
+            <RedirectList redirects={redirects} domains={allDomains} currentUserEmail={user?.email} isAdmin={isAdmin} />
+          )}
         </div>
       </div>
     </div>
