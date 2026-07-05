@@ -64,3 +64,27 @@ export async function deleteRedirect(domain: string, src: string) {
 export async function listRedirects() {
   return cpanelApi('Mime', 'list_redirects', {});
 }
+
+export async function fetchAllDomains(): Promise<string[]> {
+  try {
+    const response = await cpanelApi('DomainInfo', 'list_domains', {});
+    const domains = new Set<string>();
+    
+    if (response && response.data) {
+      const data = response.data;
+      if (typeof data.main_domain === 'string') domains.add(data.main_domain);
+      
+      ['sub_domains', 'addon_domains', 'parked_domains'].forEach(key => {
+        if (Array.isArray(data[key])) {
+          data[key].forEach((d: string) => {
+            if (typeof d === 'string') domains.add(d);
+          });
+        }
+      });
+    }
+    return Array.from(domains).sort();
+  } catch (error) {
+    console.error('Failed to fetch domains from cPanel:', error);
+    return [];
+  }
+}

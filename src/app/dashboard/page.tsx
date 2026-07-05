@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
-import { listRedirects } from '@/lib/cpanel'
+import { listRedirects, fetchAllDomains } from '@/lib/cpanel'
 import { CreateForm } from '@/components/CreateForm'
 import { RedirectList } from '@/components/RedirectList'
 
@@ -42,8 +42,10 @@ export default async function DashboardPage() {
     }
   })
 
+  let validDomains: string[] = []
   try {
     const response = await listRedirects()
+    validDomains = await fetchAllDomains()
     const uniqueRedirects = new Map()
     if (response.data) {
       for (let i = 0; i < response.data.length; i++) {
@@ -73,17 +75,19 @@ export default async function DashboardPage() {
     error = err.message
   }
 
-  // Fallback domain list if empty
-  const allDomains = redirects.length > 0 
-    ? [
-        DOMAIN,
-        ...Array.from(new Set(
-          redirects
-            .map((r: any) => r.domain.replace(/^\*\./, ''))
-            .filter((d: string) => /[a-zA-Z]/.test(d) && d !== DOMAIN)
-        )).sort()
-      ]
-    : [DOMAIN]
+  // Merge valid domains with any domains extracted from redirects, ensuring DOMAIN is always present
+  const domainSet = new Set<string>()
+  domainSet.add(DOMAIN)
+  validDomains.forEach(d => domainSet.add(d))
+  
+  redirects.forEach((r: any) => {
+    const d = r.domain.replace(/^\*\./, '')
+    if (/[a-zA-Z]/.test(d)) {
+      domainSet.add(d)
+    }
+  })
+  
+  const allDomains = Array.from(domainSet).sort()
 
   return (
     <div className="space-y-6">
