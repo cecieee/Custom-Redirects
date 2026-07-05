@@ -85,13 +85,6 @@ export default async function DashboardLayout({
                   {userRole.replace('_', ' ')}
                 </span>
               </div>
-
-              {/* Mobile Role Badge */}
-              <div className="sm:hidden flex items-center mr-2">
-                <span className="text-[10px] uppercase tracking-wider text-white/90 font-semibold bg-[var(--color-cyan-accent)]/20 border border-[var(--color-cyan-accent)]/30 px-2.5 py-1 rounded-full">
-                  {userRole.replace('_', ' ')}
-                </span>
-              </div>
               <form action="/auth/signout" method="post" className="hidden sm:block">
                 <button
                   type="submit"
